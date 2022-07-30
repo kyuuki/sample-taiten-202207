@@ -122,8 +122,6 @@ class RegisteringUsersController < ApplicationController
     # 一意性制約がかかっているので 1 or 0
     registering_user_password = RegisteringUserPassword.find_by(registering_user: registering_user)
 
-    binding.break
-
     user = registering_user.to_user
     user_password_authentication = UserPasswordAuthentication.new(
       user: user,
