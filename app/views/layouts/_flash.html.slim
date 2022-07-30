@@ -1,0 +1,18 @@
+/- Bootstrap 4 に依存
+- if not notice.nil? or not alert.nil?
+  .modal.fade id="static-modal"
+    .modal-dialog
+      .modal-content
+        .modal-header
+          button.close type="button" data-dismiss="modal" &times;
+        .modal-body
+          - if not notice.nil?
+            p.alert.alert-info
+              = notice
+          - if not alert.nil?
+            p.alert.alert-danger
+              = alert
+  javascript:
+    $(function() {
+      $("#static-modal").modal();
+    });

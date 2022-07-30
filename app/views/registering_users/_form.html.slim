@@ -1,0 +1,38 @@
+- if @registering_user.errors.any? || @registering_user_password.errors.any?
+  .alert.alert-error.alert-danger
+    button.close type="button" data-dismiss="alert" &times;
+    ul
+      - @registering_user.errors.full_messages.each do |message|
+        li
+          = message
+      - @registering_user_password.errors.full_messages.each do |message|
+        li
+          = message
+
+.form-horizontal role="form"
+  = form_for(@registering_user) do |f|
+    .form-group
+      = f.label :email, "メールアドレス", class: "col-sm-3 control-label"
+      .col-sm-5
+        = f.email_field :email, class: "form-control", required: true, placeholder: "xxx@sample.com", autocomplete: "email"
+
+    .form-group
+      = f.label :nickname, "ニックネーム", class: "col-sm-3 control-label"
+      .col-sm-3
+        = f.text_field :nickname, class: "form-control", required: true, placeholder: "○○太郎"
+
+    hr
+    = f.fields_for(@registering_user_password) do |ff|
+      .form-group
+        = ff.label :password, "パスワード", class: "col-sm-3 control-label"
+        .col-sm-3
+          = ff.password_field :password, class: "form-control", required: true, placeholder: "xxxxxx（6 文字以上）", autocomplete: "new-password"
+
+      .form-group
+        = ff.label :password_confirmation, "パスワード（確認入力）", class: "col-sm-3 control-label"
+        .col-sm-3
+          = ff.password_field :password_confirmation, class: "form-control", required: true, placeholder: "xxxxxx（6 文字以上）", autocomplete: "new-password"
+
+    .form-group
+      .col-sm-offset-3.col-sm-3
+        = f.submit "新規登録", class: "btn btn-primary"
