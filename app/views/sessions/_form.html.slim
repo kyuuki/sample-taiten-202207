@@ -9,13 +9,13 @@
 .form-horizontal role="form"
   = form_with(model: @form, url: users_log_in_path, local: true) do |f|
     .form-group
-      = f.label :email, "メールアドレス", class: "col-sm-3 control-label"
-      .col-sm-5
+      = f.label :email, "メールアドレス", class: "col-sm-12 control-label"
+      .col-sm-12
         = f.email_field :email, class: "form-control", required: true, placeholder: "xxx@sample.com", autocomplete: "email"
 
     .form-group
-      = f.label :password, "パスワード", class: "col-sm-3 control-label"
-      .col-sm-3
+      = f.label :password, "パスワード", class: "col-sm-12 control-label"
+      .col-sm-12
         = f.password_field :password, class: "form-control", required: true, placeholder: "xxxxxx", autocomplete: "current-password"
 
     .form-group

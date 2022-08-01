@@ -12,25 +12,26 @@
 .form-horizontal role="form"
   = form_for(@registering_user) do |f|
     .form-group
-      = f.label :email, "メールアドレス", class: "col-sm-3 control-label"
-      .col-sm-5
+      = f.label :email, "メールアドレス", class: "col-sm-12 control-label"
+      .col-sm-12
         = f.email_field :email, class: "form-control", required: true, placeholder: "xxx@sample.com", autocomplete: "email"
 
     .form-group
-      = f.label :nickname, "ニックネーム", class: "col-sm-3 control-label"
-      .col-sm-3
+      = f.label :nickname, "ニックネーム", class: "col-sm-12 control-label"
+      .col-sm-12
         = f.text_field :nickname, class: "form-control", required: true, placeholder: "○○太郎"
 
     hr
+
     = f.fields_for(@registering_user_password) do |ff|
       .form-group
-        = ff.label :password, "パスワード", class: "col-sm-3 control-label"
-        .col-sm-3
+        = ff.label :password, "パスワード", class: "col-sm-12 control-label"
+        .col-sm-12
           = ff.password_field :password, class: "form-control", required: true, placeholder: "xxxxxx（6 文字以上）", autocomplete: "new-password"
 
       .form-group
-        = ff.label :password_confirmation, "パスワード（確認入力）", class: "col-sm-3 control-label"
-        .col-sm-3
+        = ff.label :password_confirmation, "パスワード（確認入力）", class: "col-sm-12 control-label"
+        .col-sm-12
           = ff.password_field :password_confirmation, class: "form-control", required: true, placeholder: "xxxxxx（6 文字以上）", autocomplete: "new-password"
 
     .form-group
