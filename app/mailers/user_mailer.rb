@@ -9,6 +9,6 @@ class UserMailer < ApplicationMailer
     @registering_user = registering_user
     @token = token
 
-    mail(to: @registering_user.email, subject: "【(アプリ名)】メールアドレス認証手続きを完了してください")
+    mail(to: @registering_user.email, subject: "【#{Rails.configuration.setting[:app_name]}】メールアドレス認証手続きを完了してください")
   end
 end

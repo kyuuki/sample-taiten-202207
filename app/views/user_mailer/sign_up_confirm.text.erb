@@ -1,6 +1,6 @@
 <%= @registering_user.nickname =%> さん
 
-(アプリ名)をご利用いただきありがとうございます。
+<%= Rails.configuration.setting[:app_name] %> をご利用いただきありがとうございます。
 
 以下の URL をクリックして、メールアドレス認証手続きを完了してください。
 <%= users_confirm_url(@token) %>
