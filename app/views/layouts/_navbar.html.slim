@@ -12,7 +12,11 @@ nav.navbar.navbar-expand-md.navbar-dark.bg-dark
         li.nav-item
           a.nav-link href="#" Link
       ul.navbar-nav
-        li.nav-item
-          = link_to("新規登録", users_sign_up_path, { class: "nav-link" })
-        li.nav-item
-          = link_to("ログイン", users_log_in_path, { class: "nav-link" })
+        - if logged_in?
+          li.nav-item
+            = link_to("ログアウト", users_log_out_path, { class: "nav-link" })
+        - else
+          li.nav-item
+            = link_to("新規登録", users_sign_up_path, { class: "nav-link" })
+          li.nav-item
+            = link_to("ログイン", users_log_in_path, { class: "nav-link" })
