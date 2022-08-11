@@ -8,6 +8,8 @@ class RegisteringUsersController < ApplicationController
   # - 論理削除
 
   def new
+    # TODO: ログイン中は新規登録させない
+
     @registering_user = RegisteringUser.new
     @registering_user_password = RegisteringUserPassword.new
   end
@@ -20,23 +22,39 @@ class RegisteringUsersController < ApplicationController
   #   2. ユーザー登録済 → エラー
   #   3. ユーザー登録中 → トークン再送信
   #
-  # - パスワード形式にガチ依存してる
+  # - パスワード認証にガチ依存してる
   #
   def create
     @registering_user = RegisteringUser.new(registering_user_params)
     @registering_user_password = RegisteringUserPassword.new(registering_user_password_params)
     @registering_user_password.registering_user = @registering_user
 
-    # 既に登録済み (Registrated な) ユーザーのメールアドレスをチェック
+    #
+    # 既に登録済みのユーザーのメールアドレスをチェック
+    #
+
     # タイミングによっては チェックスルー後に User に登録され RegisteringUser に登録されるパターンがありそう
-    # TODO: シーケンスを考えてみる
-    # if not RegistratedUser.find_by(email: @registering_user.email).nil?
-    #   # Twitter でも「このメールアドレスは既に使われています。」なので登録済みは通知して OK そう
-    #   flash.now[:alert] = "メールアドレスはすでに使われています。"
-    #   render :new  # エラー画面に戻すので @registering_user と @registering_user_password は必要
-    #   # TODO: Validation と同じ通知方法にするパターンを追加
-    #   return
-    # end
+    #
+    # シーケンス
+    # 0. User (なし), RegisteringUser (a@a.com)
+    # 1. [a@a.com を新規登録 (create)] 登録済みユーザーのチェック → User にないから OK
+    # 2. [確認メールをクリックして confirm] → User (a@a.com), RegisteringUser (なし)
+    # 3. [a@a.com を新規登録 (create)] ユーザー登録中チェック → RegisteringUser にない
+    # 4. [a@a.com を新規登録 (create)] RegisteringUser に追加 → User (a@a.com), RegisteringUser (a@a.com)
+    # 5. [確認メールをクリックして confirm] → メールアドレスか被るのでエラー (2 件登録されない)
+    # RegisteringUser を定期的にクリーンすれば特に問題ない。
+    # けど、確認メールが飛んで何回もメールアドレス被りでエラーにするのは嫌かも。
+    #
+    # TODO: ユーザー登録中チェックを先にすると起きない？
+
+    if not User.find_by(email: @registering_user.email).nil?
+      # Twitter でも同様のケースで「このメールアドレスは既に使われています。」と出るので、
+      # 登録済みであることは通知して問題はなさそう
+      flash.now[:alert] = "メールアドレスはすでに使われています。"
+      render :new  # エラー画面に戻すので @registering_user と @registering_user_password は必要
+      # TODO: Validation と同じ通知方法 (画面に固定で出力する) にするほうがよい？View をちょっと直すだけで一瞬
+      return
+    end
 
     # ユーザー登録中のチェック
     alreay_registering_user = RegisteringUser.find_by(email: @registering_user.email)
@@ -45,6 +63,7 @@ class RegisteringUsersController < ApplicationController
       ActiveRecord::Base.transaction do
         # ユーザー登録中ならば、その関係のデータを全て削除
         if not alreay_registering_user.nil?
+          # TODO: ここら辺のエラーをテストコードだけじゃなく、画面からお手軽に発生させる
           # データがない場合はデータ不整合なので nil エラーで致命的エラーを発生
           RegisteringUserToken.find_by(registering_user: alreay_registering_user).destroy!
           RegisteringUserPassword.find_by(registering_user: alreay_registering_user).destroy!
@@ -53,12 +72,16 @@ class RegisteringUsersController < ApplicationController
 
         # (*1)
         # ユーザー登録中のチェックをしているので、RegisteringUser.email の一意性制約には引っかからないはず
-        if not @registering_user_password.registering_user.valid?
-          raise ActiveRecord::RecordInvalid  # バリデーションエラー
-        end
+        #if not @registering_user_password.registering_user.valid?
+        #  logger.debug "@registering_user_password.registering_user is invalid"
+        #  raise ActiveRecord::RecordInvalid  # バリデーションエラー
+        #end
 
         # RegistratingUser (@registering_user_password.registering_user) のバリデーションは行われない
         # (belongs_to だと Validation が行われない？) TODO: 調査
+        # https://mogulla3.tech/articles/2021-02-07-01
+        # ↑によるとバリデーションエラーだと RegistratingUser は保存されず RegistratingUserPassword だけ保存しようとする (ただし、registrationg_user_id が nil なのでエラー)
+        # TODO: autosave 入れればいいのかも？でもその意味はどこかに書かないと絶対忘れる
         # よって (*1) で別にバリデーション
         @registering_user_password.save!
 
@@ -118,6 +141,8 @@ class RegisteringUsersController < ApplicationController
     # User
     # UserPasswordAuthentication
     #
+
+    # TODO: すり抜けで同じメールアドレスのが既に登録されている時を考えておいた方がよい？
 
     # 一意性制約がかかっているので 1 or 0
     registering_user_password = RegisteringUserPassword.find_by(registering_user: registering_user)

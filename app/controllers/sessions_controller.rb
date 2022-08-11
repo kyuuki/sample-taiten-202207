@@ -1,3 +1,6 @@
+#
+# セッション (ログイン) コントローラー
+#
 class SessionsController < ApplicationController
   def new
     @form = LogInForm.new
