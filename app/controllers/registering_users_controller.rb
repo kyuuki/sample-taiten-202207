@@ -77,13 +77,12 @@ class RegisteringUsersController < ApplicationController
         #  raise ActiveRecord::RecordInvalid  # バリデーションエラー
         #end
 
-        # RegistratingUser (@registering_user_password.registering_user) のバリデーションは行われない
-        # (belongs_to だと Validation が行われない？) TODO: 調査
+        @registering_user_password.save!
+        # この書き方だと RegistratingUser (@registering_user_password.registering_user) のバリデーションは行われない
+        # モデルに autosave を入れる必要があり
         # https://mogulla3.tech/articles/2021-02-07-01
         # ↑によるとバリデーションエラーだと RegistratingUser は保存されず RegistratingUserPassword だけ保存しようとする (ただし、registrationg_user_id が nil なのでエラー)
-        # TODO: autosave 入れればいいのかも？でもその意味はどこかに書かないと絶対忘れる
-        # よって (*1) で別にバリデーション
-        @registering_user_password.save!
+        # よって (*1) で別にバリデーション → autosave を入れればいらない？
 
         # トークン生成
         token = RegisteringUserToken.create_and_return_token!(@registering_user)
